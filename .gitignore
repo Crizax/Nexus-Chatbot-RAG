@@ -1,0 +1,15 @@
+# Environment & Secrets
+.env
+.streamlit/secrets.toml
+
+# Local Vector Database (Streamlit Cloud will build this fresh from hospital_data.json)
+nexus_health_db/
+
+
+
+# Python & OS Cache
+venv/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

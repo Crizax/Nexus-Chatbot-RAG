@@ -1,0 +1,187 @@
+[
+  {
+    "id": "nexus-001",
+    "text": "Nexus Health Medical Center (NHMC) is located at 452 Innovation Blvd, Tech City, TC 90210. Our mission is to provide tech-driven, compassionate healthcare. Main switchboard: (555) 010-2000. Emergency hotline: (555) 010-9999. Outpatient (OPD) hours are Monday to Saturday, 8:00 AM to 6:00 PM.",
+    "metadata": {
+      "category": "general_info",
+      "priority": "high",
+      "floor": 0
+    }
+  },
+  {
+    "id": "nexus-002",
+    "text": "Cardiology Department at Nexus Health is headed by Dr. Aris Thorne. Located on the 4th Floor, East Wing. Services include ECG, Stress Tests, Echocardiograms, Angioplasty, Pacemaker Implantation, and Heart Failure Management. Direct extension: (555) 010-2401.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Cardiology",
+      "head_doctor": "Dr. Aris Thorne",
+      "floor": 4
+    }
+  },
+  {
+    "id": "nexus-003",
+    "text": "Neurology Department at Nexus Health is headed by Dr. Sarah Jenkins. Located on the 3rd Floor, West Wing. Services include EEG, EMG, Sleep Studies, Stroke Recovery, Epilepsy Management, and a dedicated Migraine Clinic. Direct extension: (555) 010-2301.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Neurology",
+      "head_doctor": "Dr. Sarah Jenkins",
+      "floor": 3
+    }
+  },
+  {
+    "id": "nexus-004",
+    "text": "Orthopedics Department is located on the Ground Floor, Wing B, headed by Dr. Elena Vance. Specializes in Total Joint Replacement (Knee/Hip), Arthroscopy, Sports Medicine, Spine Surgery, and Acute Fracture Treatment. Physical Therapy is adjacent in Wing B. Direct extension: (555) 010-2040.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Orthopedics",
+      "head_doctor": "Dr. Elena Vance",
+      "floor": 0
+    }
+  },
+  {
+    "id": "nexus-005",
+    "text": "Appointment Booking & Cancellation: Patients can book, reschedule, or cancel via the 'Nexus Care' mobile app, the web portal at www.nexushealth.med, or by calling (555) 010-2020 during OPD hours (8:00 AM – 6:00 PM). Please provide at least 24 hours notice for cancellations to avoid a $25 late cancellation fee.",
+    "metadata": {
+      "category": "appointments",
+      "action": "booking"
+    }
+  },
+  {
+    "id": "nexus-006",
+    "text": "Insurance and Billing: NHMC is in-network with Aegis Health Shield, Global Care Mutual, Blue Horizon PPO, MediCore Plus, and Starlight Medicaid. Out-of-network patients require a 20% co-pay at the time of service. The Billing & Financial Counseling Office is on the Ground Floor, Lobby A, or reachable at (555) 010-2055.",
+    "metadata": {
+      "category": "billing",
+      "floor": 0
+    }
+  },
+  {
+    "id": "nexus-007",
+    "text": "Visitor Policy: General ward visiting hours are 11:00 AM – 1:00 PM and 5:00 PM – 8:00 PM daily (maximum 2 visitors per patient at a time). ICU and NICU visits are strictly limited to immediate family members for 10 minutes every 2 hours. Children under 12 are not permitted in ICU wards.",
+    "metadata": {
+      "category": "policy",
+      "type": "visitation"
+    }
+  },
+  {
+    "id": "nexus-008",
+    "text": "Laboratory & Pathology Services: Located on the 1st Floor, Central Wing. Blood draws and routine specimen collections run from 6:30 AM to 5:00 PM daily. Routine lab results are uploaded to the Nexus Care patient portal within 24–48 hours. Fasting blood tests require 8–12 hours of water-only fasting prior to sample collection.",
+    "metadata": {
+      "category": "diagnostics",
+      "topic": "lab_results",
+      "floor": 1
+    }
+  },
+  {
+    "id": "nexus-009",
+    "text": "Pediatrics & Neonatal Care: Headed by Dr. Marcus Chen, located on the 2nd Floor, East Wing. Offers Well-Child Checkups, Immunizations, Pediatric Urgent Care, Adolescent Medicine, and a Level III Neonatal Intensive Care Unit (NICU). Direct extension: (555) 010-2210.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Pediatrics",
+      "head_doctor": "Dr. Marcus Chen",
+      "floor": 2
+    }
+  },
+  {
+    "id": "nexus-010",
+    "text": "Oncology & Cancer Care Center: Located on the 5th Floor, West Wing, led by Dr. Priya Nair. Services include Medical Oncology, Chemotherapy Infusion Suites, Radiation Therapy, Immunotherapy, and Genetic Counseling. Support group sessions are held every Thursday at 3:00 PM. Direct extension: (555) 010-2500.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Oncology",
+      "head_doctor": "Dr. Priya Nair",
+      "floor": 5
+    }
+  },
+  {
+    "id": "nexus-011",
+    "text": "Obstetrics, Gynecology & Maternity (OB/GYN): Located on the 2nd Floor, West Wing, headed by Dr. Hannah Abbott. Features private Labor & Delivery suites, Prenatal & Postnatal Care, High-Risk Pregnancy Management, and Lactation Consulting. Expectant parents can book maternity ward tours on weekends.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Maternity_OBGYN",
+      "head_doctor": "Dr. Hannah Abbott",
+      "floor": 2
+    }
+  },
+  {
+    "id": "nexus-012",
+    "text": "Radiology & Diagnostic Imaging: Located on the Basement Level (B1), North Wing, directed by Dr. Tariq Mahmood. Equipped with 3T MRI, 128-Slice CT Scanners, Digital X-Ray, 4D Ultrasound, and Mammography. MRI and CT scans require prior scheduling and physician referral. Direct extension: (555) 010-2090.",
+    "metadata": {
+      "category": "diagnostics",
+      "specialty": "Radiology",
+      "head_doctor": "Dr. Tariq Mahmood",
+      "floor": -1
+    }
+  },
+  {
+    "id": "nexus-013",
+    "text": "Gastroenterology & Hepatology: Located on the 3rd Floor, East Wing, headed by Dr. Carlos Rivera. Services include Upper Endoscopy, Colonoscopy, Liver Disease Management, IBS/IBD Treatment, and Nutritional Counseling. Endoscopy prep instructions are available on the patient portal.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Gastroenterology",
+      "head_doctor": "Dr. Carlos Rivera",
+      "floor": 3
+    }
+  },
+  {
+    "id": "nexus-014",
+    "text": "Emergency & Trauma Center: Open 24/7 on the Ground Floor, North Entrance (dedicated ambulance bay). Equipped as a Level I Trauma Center handling cardiac arrest, stroke, severe trauma, and acute respiratory distress. For immediate life-threatening emergencies or ambulance dispatch, call (555) 010-9999.",
+    "metadata": {
+      "category": "emergency",
+      "priority": "critical",
+      "floor": 0
+    }
+  },
+  {
+    "id": "nexus-015",
+    "text": "Pharmacy Services: The Main Inpatient & Outpatient Pharmacy is on the Ground Floor next to the Main Lobby and operates 24/7. Prescription refills can be requested through the Nexus Care app for express pickup or local home delivery within a 15-mile radius. Pharmacy desk: (555) 010-2088.",
+    "metadata": {
+      "category": "facilities",
+      "topic": "pharmacy",
+      "floor": 0
+    }
+  },
+  {
+    "id": "nexus-016",
+    "text": "Mental Health & Psychiatry: Headed by Dr. Nadia Rostova on the 4th Floor, West Wing. Provides Outpatient Counseling, Cognitive Behavioral Therapy (CBT), Psychiatric Medication Management, Stress & Anxiety Programs, and a 24/7 Crisis Support Line at (555) 010-9888.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Psychiatry",
+      "head_doctor": "Dr. Nadia Rostova",
+      "floor": 4
+    }
+  },
+  {
+    "id": "nexus-017",
+    "text": "Dermatology & Laser Clinic: Located on the 1st Floor, East Wing, headed by Dr. Kevin Park. Services include Skin Cancer Screening, Acne & Eczema Treatment, Mole Mapping, Cryotherapy, and Medical Laser Procedures. Direct extension: (555) 010-2150.",
+    "metadata": {
+      "category": "departments",
+      "specialty": "Dermatology",
+      "head_doctor": "Dr. Kevin Park",
+      "floor": 1
+    }
+  },
+  {
+    "id": "nexus-018",
+    "text": "Parking, Valet & Public Transit: Multi-level visitor parking is located at the South Garage. First 30 minutes are free; standard rate is $3/hour up to a $12 daily maximum. Valet parking ($15 flat rate) is available at the Main Entrance from 7:00 AM to 7:00 PM. Tech City Metro 'Innovation Station' (Blue Line) stops directly outside the campus.",
+    "metadata": {
+      "category": "facilities",
+      "topic": "parking_transit"
+    }
+  },
+  {
+    "id": "nexus-019",
+    "text": "Cafeteria, Wi-Fi & Amenities: 'The Green Pulse Cafe' is on the 1st Floor, serving healthy meals, coffee, and vegan/halal options from 6:30 AM to 9:00 PM (24/7 vending machines available). Free high-speed Wi-Fi is accessible across the hospital under network name 'NHMC-Guest' (no password required). An ATM and prayer/meditation room are located on the Ground Floor.",
+    "metadata": {
+      "category": "facilities",
+      "topic": "amenities",
+      "floor": 1
+    }
+  },
+  {
+    "id": "nexus-020",
+    "text": "Telehealth & Medical Records (HIM): Virtual video consultations are available for follow-ups, minor illnesses, and mental health via the Nexus Care app ($40 standard co-pay if uninsured). Official medical records, discharge summaries, and imaging CDs can be requested from the Health Information Management office (Basement Level B1) or downloaded electronically via the portal.",
+    "metadata": {
+      "category": "services",
+      "topic": "telehealth_records"
+    }
+  }
+]
