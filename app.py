@@ -6,7 +6,6 @@ try:
 except ImportError:
     pass
 
-
 import os
 import json
 import streamlit as st
@@ -18,11 +17,19 @@ from langchain_core.documents import Document
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 
-# Load environment variables from .env file if present
+# Load environment variables from .env file locally
 load_dotenv()
 
 DATA_FILE = "hospital_data.json"
 DB_DIR = "./nexus_health_db"
+
+# Priority order of active Groq production models (with automatic fallback)
+PREFERRED_MODELS = [
+    "openai/gpt-oss-20b",
+    "openai/gpt-oss-120b",
+    "qwen/qwen3-32b",
+    "meta-llama/llama-4-scout-17b-16e-instruct"
+]
 
 st.set_page_config(
     page_title="Nexus Health Assistant",
@@ -30,38 +37,18 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Sidebar Configuration ---
+# Resolve API Key silently in the background (.env or Streamlit Cloud Secrets)
+api_key = os.getenv("GROQ_API_KEY", "")
+if not api_key:
+    try:
+        api_key = st.secrets.get("GROQ_API_KEY", "")
+    except Exception:
+        api_key = ""
+
+# --- Clean Patient-Facing Sidebar (No API Key or Model Selectors) ---
 with st.sidebar:
-    st.header("⚙️ Configuration")
-    
-    # Resolve API Key from .env, st.secrets, or Sidebar Input
-    default_key = os.getenv("GROQ_API_KEY", "")
-    if not default_key:
-        try:
-            default_key = st.secrets.get("GROQ_API_KEY", "")
-        except Exception:
-            default_key = ""
-
-    api_key = st.text_input(
-        "Groq API Key",
-        value=default_key,
-        type="password",
-        placeholder="gsk_...",
-        help="Enter your free Groq API key from console.groq.com"
-    )
-
-    model_name = st.selectbox(
-        "Select Groq Model",
-        options=[
-            "llama-3.1-8b-instant",
-            "llama-3.3-70b-versatile",
-            "mixtral-8x7b-32768"
-        ],
-        index=0,
-        help="Switch models if one hits free-tier rate limits."
-    )
-
-    k_docs = st.slider("Retrieved Context Chunks (k)", min_value=2, max_value=8, value=4)
+    st.header("🏥 Nexus Health")
+    st.caption("452 Innovation Blvd, Tech City")
 
     st.divider()
     st.subheader("🚨 Quick Contacts")
@@ -69,17 +56,21 @@ with st.sidebar:
         "- **Emergency:** `(555) 010-9999`\n"
         "- **Main Desk:** `(555) 010-2000`\n"
         "- **Appointments:** `(555) 010-2020`\n"
-        "- **Crisis Line:** `(555) 010-9888`"
+        "- **Billing Office:** `(555) 010-2055`\n"
+        "- **24/7 Crisis Line:** `(555) 010-9888`"
     )
 
     st.divider()
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🗑️ Clear Chat", use_container_width=True):
-            st.session_state.messages = []
-            st.rerun()
-    with col2:
-        rebuild_db = st.button("🔄 Sync Data", use_container_width=True, help="Re-index hospital_data.json")
+    st.subheader("🕒 Visiting Hours")
+    st.markdown(
+        "- **General Wards:**\n  11:00 AM – 1:00 PM\n  5:00 PM – 8:00 PM\n"
+        "- **ICU / NICU:**\n  Immediate family only (10 mins every 2 hrs)"
+    )
+
+    st.divider()
+    if st.button("🗑️ Clear Conversation", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
 
 
 # --- Vector DB & Embeddings Initialization ---
@@ -88,7 +79,8 @@ def get_embeddings():
     return HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 
-def initialize_vector_db(force_rebuild: bool = False):
+@st.cache_resource
+def initialize_vector_db():
     embeddings = get_embeddings()
     vector_db = Chroma(
         persist_directory=DB_DIR,
@@ -96,7 +88,6 @@ def initialize_vector_db(force_rebuild: bool = False):
         collection_name="nexus_hospital_docs"
     )
 
-    # Load JSON records
     if not os.path.exists(DATA_FILE):
         st.error(f"Missing `{DATA_FILE}` in project directory.")
         st.stop()
@@ -104,20 +95,17 @@ def initialize_vector_db(force_rebuild: bool = False):
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         raw_data = json.load(f)
 
-    # Check current vector count vs JSON count
     existing_count = vector_db._collection.count()
 
-    if force_rebuild or existing_count != len(raw_data):
+    # Auto-ingest if DB is empty or record count changed
+    if existing_count != len(raw_data):
         if existing_count > 0:
-            # Clear outdated records before re-indexing
             existing_ids = vector_db._collection.get()["ids"]
             if existing_ids:
                 vector_db._collection.delete(ids=existing_ids)
 
-        docs = []
-        ids = []
+        docs, ids = [], []
         for item in raw_data:
-            # Flatten list metadata values to strings for Chroma compatibility
             clean_meta = {
                 k: (", ".join(map(str, v)) if isinstance(v, list) else v)
                 for k, v in item.get("metadata", {}).items()
@@ -131,18 +119,47 @@ def initialize_vector_db(force_rebuild: bool = False):
     return vector_db
 
 
-# Build or sync database
-vector_db = initialize_vector_db(force_rebuild=rebuild_db)
-if rebuild_db:
-    st.sidebar.success("Vector database synced with hospital_data.json!")
+vector_db = initialize_vector_db()
+retriever = vector_db.as_retriever(search_kwargs={"k": 4})
 
-retriever = vector_db.as_retriever(search_kwargs={"k": k_docs})
+
+def invoke_with_model_fallback(prompt_template, payload: dict, groq_key: str) -> str:
+    """Tries preferred Groq models and automatically discovers available models on 404."""
+    last_error = None
+
+    # 1. Try preferred production models first
+    for model_id in PREFERRED_MODELS:
+        try:
+            llm = ChatGroq(api_key=groq_key, model_name=model_id, temperature=0.1)
+            chain = prompt_template | llm | StrOutputParser()
+            return chain.invoke(payload)
+        except Exception as e:
+            last_error = e
+            if "model_not_found" in str(e) or "404" in str(e) or "decommissioned" in str(e):
+                continue
+            raise e
+
+    # 2. Dynamic Fallback: Query Groq API for whatever active chat model this key has access to
+    try:
+        from groq import Groq
+        client = Groq(api_key=groq_key)
+        models_response = client.models.list()
+        excluded_keywords = ("whisper", "guard", "tts", "orpheus", "embed", "playai")
+        for m in models_response.data:
+            if not any(kw in m.id.lower() for kw in excluded_keywords):
+                llm = ChatGroq(api_key=groq_key, model_name=m.id, temperature=0.1)
+                chain = prompt_template | llm | StrOutputParser()
+                return chain.invoke(payload)
+    except Exception as fallback_err:
+        last_error = fallback_err
+
+    raise last_error
+
 
 # --- Main Interface ---
 st.title("🏥 Nexus Health AI Support")
 st.markdown("Fast, reliable patient support grounded in **Nexus Health Medical Center (NHMC)** data.")
 
-# Prompt Template with Chat History
 template = """You are a professional, empathetic hospital assistant for Nexus Health Medical Center (NHMC).
 Use the retrieved hospital context below to answer the patient's question accurately.
 
@@ -163,7 +180,6 @@ Assistant Answer:"""
 
 prompt = ChatPromptTemplate.from_template(template)
 
-# Initialize Session State Chat History
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
@@ -172,7 +188,6 @@ if "messages" not in st.session_state:
         }
     ]
 
-# Display Chat Messages
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
@@ -181,18 +196,15 @@ for m in st.session_state.messages:
                 for src in m["sources"]:
                     st.caption(f"**[{src['id']}]** ({src['category']}) — {src['text']}")
 
-# Handle User Input
 if user_input := st.chat_input("Ask about departments, appointments, insurance, visiting hours..."):
     if not api_key:
-        st.warning("⚠️ Please enter your Groq API Key in the left sidebar (or set `GROQ_API_KEY` in a `.env` file) to continue.")
+        st.error("Server Configuration Error: `GROQ_API_KEY` is missing from environment variables / Streamlit Secrets.")
         st.stop()
 
-    # Append and render user message
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
 
-    # Retrieve relevant documents & generate response
     with st.chat_message("assistant"):
         with st.spinner("Searching hospital records..."):
             try:
@@ -202,28 +214,23 @@ if user_input := st.chat_input("Ask about departments, appointments, insurance, 
                     for d in retrieved_docs
                 )
 
-                # Format last 4 turns of conversation history
                 recent_turns = st.session_state.messages[-5:-1]
                 history_text = "\n".join(
                     f"{m['role'].capitalize()}: {m['content']}" for m in recent_turns
                 ) or "None"
 
-                llm = ChatGroq(
-                    api_key=api_key,
-                    model_name=model_name,
-                    temperature=0.1
+                response = invoke_with_model_fallback(
+                    prompt_template=prompt,
+                    payload={
+                        "context": context_text,
+                        "chat_history": history_text,
+                        "question": user_input
+                    },
+                    groq_key=api_key
                 )
-
-                chain = prompt | llm | StrOutputParser()
-                response = chain.invoke({
-                    "context": context_text,
-                    "chat_history": history_text,
-                    "question": user_input
-                })
 
                 st.markdown(response)
 
-                # Format source metadata for UI transparency
                 sources_list = [
                     {
                         "id": d.metadata.get("record_id", "N/A"),
@@ -244,4 +251,4 @@ if user_input := st.chat_input("Ask about departments, appointments, insurance, 
                 })
 
             except Exception as e:
-                st.error(f"Error connecting to Groq API: {e}")
+                st.error(f"Error connecting to AI service: {e}")
